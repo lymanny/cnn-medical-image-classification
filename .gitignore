@@ -1,0 +1,25 @@
+# Python Environment
+.venv/
+venv/
+env/
+
+# PyCharm
+.idea/
+
+# Python Cache
+__pycache__/
+*.pyc
+
+# Medical Datasets
+data/
+
+# Trained Models
+*.pth
+*.pt
+
+# Environment Variables
+.env
+
+# System Files
+.DS_Store
+Thumbs.db
