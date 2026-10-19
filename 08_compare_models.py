@@ -59,7 +59,8 @@ for name, predicted in predictions.items():
     # Compare predictions with correct labels.
     accuracy = accuracy_score(actual, predicted)
 
-    # macro = gives equal importance to each class.
+    # macro = calculate each class's score, then average the three scores.
+    # zero_division=0 = use 0 when a class's score cannot be calculated.
     precision = precision_score(
         actual, predicted, average="macro", zero_division=0
     )
@@ -68,6 +69,7 @@ for name, predicted in predictions.items():
         actual, predicted, average="macro", zero_division=0
     )
 
+    # Macro F1 averages per-class F1, not the macro precision and recall.
     f1 = f1_score(
         actual, predicted, average="macro", zero_division=0
     )
@@ -98,24 +100,37 @@ for name, metrics in results.items():
 # 4. Visualize Model Performance
 # ==================================================
 
-# Get model names and F1-scores.
+# Show all four metrics so differences between models are easier to see.
 names = list(results.keys())
-f1_scores = [results[name]["F1"] * 100 for name in names]
+metric_names = ["Accuracy", "Precision", "Recall", "F1"]
+colors = ["#0072B2", "#E69F00", "#009E73"]
 
-# Plot F1-scores as a bar chart.
-plt.bar(names, f1_scores)
+fig, axes = plt.subplots(2, 2, figsize=(11, 7))
+fig.suptitle("CNN Model Comparison (Simulated: 10 Images)")
 
-plt.title("CNN Model Comparison (Simulated)")
-plt.xlabel("Model")
-plt.ylabel("Macro F1-score (%)")
-plt.ylim(0, 100)
+# flat = visit the four subplot axes one at a time.
+for ax, metric in zip(axes.flat, metric_names):
+    scores = [results[name][metric] * 100 for name in names]
+    bars = ax.bar(names, scores, color=colors)
 
-# Show scores above each bar.
-for i, score in enumerate(f1_scores):
-    plt.text(i, score + 1, f"{score:.1f}%", ha="center")
+    title = "Accuracy" if metric == "Accuracy" else f"Macro {metric}"
+    ax.set_title(title)
+    ax.set_ylabel("Score (%)")
+    # Extra space keeps labels visible even when a score reaches 100%.
+    ax.set_ylim(0, 110)
+    ax.set_yticks(range(0, 101, 20))
+    ax.set_axisbelow(True)
+    ax.grid(axis="y", alpha=0.3)
+
+    for bar, score in zip(bars, scores):
+        ax.text(
+            bar.get_x() + bar.get_width() / 2,
+            score + 1,
+            f"{score:.1f}%",
+            ha="center"
+        )
 
 plt.tight_layout()
-plt.show()
 
 
 # ==================================================
@@ -133,3 +148,6 @@ print("Model:", best_model)
 print(f"F1-score: {results[best_model]['F1']:.2%}")
 
 print("\nNote: These are simulated results.")
+
+# Show the chart after printing all results; this may wait until it is closed.
+plt.show()
